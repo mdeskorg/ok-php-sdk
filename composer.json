@@ -1,0 +1,20 @@
+{
+    "name": "mdeskorg/ok-php-sdk",
+    "description": "Odnoklassniki Php sdk",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Mdeskorg\\OkPhpSdk\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "MDesk",
+            "email": "support@mdesk.org",
+            "homepage": "https://multidesk.org"
+        }
+    ],
+    "require": {
+        "php": "^8.1"
+    }
+}
