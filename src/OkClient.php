@@ -52,7 +52,7 @@ class OkClient
     public function validateToken(): ClientException|bool
     {
         $endpoint = 'me/info';
-        $response = $this->request($endpoint, 'gets');
+        $response = $this->request($endpoint, 'get');
         return empty($response['error_code']);
     }
 
@@ -83,7 +83,7 @@ class OkClient
                 ];
             }
         }
-        return $this->request($endpoint, 'posts', $options);
+        return $this->request($endpoint, 'post', $options);
     }
 
     /**
@@ -93,7 +93,7 @@ class OkClient
     public function setWebhook(string $url): array|ClientException
     {
         $endpoint = 'me/subscribe';
-        return $this->request($endpoint, 'posts', [
+        return $this->request($endpoint, 'post', [
             'url' => $url,
             'types' => ["MESSAGE_CREATED","MESSAGE_CALLBACK","CHAT_SYSTEM"]
         ]);
@@ -106,7 +106,7 @@ class OkClient
     public function getWebhooks(): array|ClientException
     {
         $endpoint = 'me/subscriptions';
-        return $this->request($endpoint, 'gets');
+        return $this->request($endpoint, 'get');
     }
 
     /**
@@ -116,7 +116,7 @@ class OkClient
     public function deleteWebhook(string $url): array|ClientException
     {
         $endpoint = 'me/unsubscribe';
-        return $this->request($endpoint, 'posts', [
+        return $this->request($endpoint, 'post', [
             'url' => $url,
         ]);
     }
