@@ -44,7 +44,7 @@ class OkClient
         return $this->get($url);
     }
 
-    public function getUrlWithSig(array $params): string
+    private function getUrlWithSig(array $params): string
     {
         $param = [
             'application_key' => $this->appKey,
