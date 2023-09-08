@@ -1,125 +1,64 @@
 <?php
 
-namespace App\src;
+namespace Mdeskorg\OkPhpSdk;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
-use RuntimeException;
+use http\Exception\RuntimeException;
 
 class OkClient
 {
+    protected string $appKey;
+    protected string $sessionKey;
+    protected string $sessionSecretKey;
+    protected string $apiUrl = 'https://api.ok.ru/fb.do?';
     private Client $client;
-    private string $url = 'https://api.ok.ru/graph/';
-    private string $token;
 
-    public function __construct(string $token)
+    public function __construct(string $appKey, string $sessionKey, string $sessionSecretKey)
     {
-        $this->client = new Client(['headers' => ['Content-Type' => 'application/json;charset=utf-8']]);
-        $this->token = $token;
+        $this->appKey = $appKey;
+        $this->sessionKey = $sessionKey;
+        $this->sessionSecretKey = $sessionSecretKey;
+        $this->client = new Client();
     }
 
-    /**
-     * @throws GuzzleException
-     */
-    private function request($endpoint, $method, $data = null):array|ClientException
+    private function get($url):array|ClientException
     {
-        $url = $this->url . $endpoint . '?access_token=' . $this->token;
         try {
-            $options = $data ? ['json' => $data] : [];
-            $response = $this->client->request($method, $url, $options)->getBody()->getContents();
+            $response = $this->client->request('get', $url)->getBody()->getContents();
             return json_decode($response, true);
-        } catch (ClientException $e) {
+        } catch (GuzzleException $e) {
             throw new RuntimeException("Request failed: {$e->getMessage()}", $e->getCode(), $e);
         }
     }
 
-
-    /**
-     * Получение всех чатов группы
-     * @throws GuzzleException
-     */
-    public function getChats(): ClientException|array
+    public function getUserInfo(string $uid): array|ClientException
     {
-        $endpoint = 'me/chats';
-        return $this->request($endpoint, 'get');
-    }
-
-    /**
-     * Проверка валидности токена
-     * @throws GuzzleException
-     */
-    public function validateToken(): ClientException|bool
-    {
-        $endpoint = 'me/info';
-        $response = $this->request($endpoint, 'get');
-        return empty($response['error_code']);
-    }
-
-    /**
-     * Отправка сообщения
-     * @throws GuzzleException
-     */
-    public function sendMessage(string $chatId, string $message = null, array $images = null): array|ClientException
-    {
-        $endpoint = 'chat:'.$chatId.'/messages';
-        if(count($images) > 5){
-            return ['error' => 'Max count attachment images - 5'];
-        }
-        $options = [
-            "recipient" => ["chat_id" => 'chat:'.$chatId],
-            "message" => []
+        $params = [
+            'fields' => 'first_name,last_name,pic_full',
+            'uids' => $uid,
+            'method' => 'users.getInfo',
         ];
-        if($message){
-            $options['message'] = ['text' => $message];
+        $url = $this->getUrlWithSig($params);
+        return $this->get($url);
+    }
+
+    public function getUrlWithSig(array $params): string
+    {
+        $param = [
+            'application_key' => $this->appKey,
+            'format' => 'json',
+            'session_key' => $this->sessionKey,
+        ];
+        $param = array_merge($param, $params);
+        $stringParam = '';
+        foreach ($param as $key => $value) {
+            $stringParam .= $key . '=' . $value;
         }
-        if($images){
-            foreach ($images as $key => $value){
-                $options['message']["attachments"][] = [
-                    "type" => "IMAGE",
-                    "payload" => [
-                        "url" => $value
-                    ]
-                ];
-            }
-        }
-        return $this->request($endpoint, 'post', $options);
-    }
+        $secretKey = md5($stringParam . $this->sessionSecretKey);
+        return $this->apiUrl . http_build_query($param) . '&sig=' . $secretKey;
 
-    /**
-     * Установить вебхук
-     * @throws GuzzleException
-     */
-    public function setWebhook(string $url): array|ClientException
-    {
-        $endpoint = 'me/subscribe';
-        return $this->request($endpoint, 'post', [
-            'url' => $url,
-            'types' => ["MESSAGE_CREATED","MESSAGE_CALLBACK","CHAT_SYSTEM"]
-        ]);
     }
-
-    /**
-     * Список активных вебхуков
-     * @throws GuzzleException
-     */
-    public function getWebhooks(): array|ClientException
-    {
-        $endpoint = 'me/subscriptions';
-        return $this->request($endpoint, 'get');
-    }
-
-    /**
-     * Удалить вебхук
-     * @throws GuzzleException
-     */
-    public function deleteWebhook(string $url): array|ClientException
-    {
-        $endpoint = 'me/unsubscribe';
-        return $this->request($endpoint, 'post', [
-            'url' => $url,
-        ]);
-    }
-
 
 }
