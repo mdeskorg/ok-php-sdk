@@ -5,6 +5,7 @@ namespace App\src;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use RuntimeException;
 
 class OkClient
 {
@@ -29,7 +30,7 @@ class OkClient
             $response = $this->client->request($method, $url, $options)->getBody()->getContents();
             return json_decode($response, true);
         } catch (ClientException $e) {
-            throw new \RuntimeException("Request failed: {$e->getMessage()}", $e->getCode(), $e);
+            throw new RuntimeException("Request failed: {$e->getMessage()}", $e->getCode(), $e);
         }
     }
 
