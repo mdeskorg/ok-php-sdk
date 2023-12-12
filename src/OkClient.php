@@ -23,14 +23,25 @@ class OkClient
         $this->client = new Client();
     }
 
-    private function get($url):array|ClientException
+    private function get($url, $method = 'get'):array|ClientException
     {
         try {
-            $response = $this->client->request('get', $url)->getBody()->getContents();
+            $response = $this->client->request($method, $url)->getBody()->getContents();
             return json_decode($response, true);
         } catch (GuzzleException $e) {
             throw new RuntimeException("Request failed: {$e->getMessage()}", $e->getCode(), $e);
         }
+    }
+
+      public function getGroupInfo(string $uid): array|ClientException
+    {
+        $params = [
+            'fields' => 'cover,members_count',
+            'uids' => $uid,
+            'method' => 'group.getInfo',
+        ];
+        $url = $this->getUrlWithSig($params);
+        return $this->get($url);
     }
 
     public function getUserInfo(string $uid): array|ClientException
