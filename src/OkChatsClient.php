@@ -53,7 +53,12 @@ class OkChatsClient
     {
         $endpoint = 'me/info';
         $response = $this->request($endpoint, 'get');
-        return empty($response['error_code']);
+
+        if(isset($response['error_code'])){
+            return false;
+        }
+        
+        return $response;
     }
 
     /**
