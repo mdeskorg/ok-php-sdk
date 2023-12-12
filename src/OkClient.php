@@ -36,7 +36,7 @@ class OkClient
       public function getGroupInfo(string $uid): array|ClientException
     {
         $params = [
-            'fields' => 'cover,members_count',
+            'fields' => 'pic_avatar,members_count',
             'uids' => $uid,
             'method' => 'group.getInfo',
         ];
