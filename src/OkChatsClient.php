@@ -49,7 +49,7 @@ class OkChatsClient
      * Проверка валидности токена
      * @throws GuzzleException
      */
-    public function validateToken(): ClientException|bool
+    public function validateToken(): ClientException|array
     {
         $endpoint = 'me/info';
         $response = $this->request($endpoint, 'get');
