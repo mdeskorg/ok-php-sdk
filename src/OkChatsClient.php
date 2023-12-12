@@ -57,6 +57,8 @@ class OkChatsClient
         if(isset($response['error_code'])){
             return false;
         }
+
+        dd('ok');
         
         return $response;
     }
