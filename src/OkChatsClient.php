@@ -54,10 +54,10 @@ class OkChatsClient
         $endpoint = 'me/info';
         $response = $this->request($endpoint, 'get');
 
-        if(isset($response['error_code'])){
-            return false;
+        if (isset($response['error_code'])) {
+            throw new Exception('Error Processing Request', 1);
         }
-
+        
         return $response;
     }
 
