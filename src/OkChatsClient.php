@@ -58,8 +58,6 @@ class OkChatsClient
             return false;
         }
 
-        dd('ok');
-        
         return $response;
     }
 
