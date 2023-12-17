@@ -75,9 +75,14 @@ class OkChatsClient
             'recipient' => ['chat_id' => 'chat:'.$chatId],
             'message' => []
         ];
-        if($message){
+
+        if ($message) {
             $options['message'] = ['text' => $message];
+        } else {
+            $options['message'] = ['text' => '📎'];
         }
+
+        
         if($images){
             foreach ($images as $key => $value){
                 $options['message']['attachments'][] = [
